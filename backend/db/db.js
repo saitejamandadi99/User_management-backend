@@ -1,5 +1,5 @@
-const sqlite3 = requrie('sqlite3').verbose()
-const path = requrie('oath')
+const sqlite3 = require('sqlite3').verbose()
+const path = require('path')
 const dbpath = path.join(__dirname,'database.db')
 const db = new sqlite3.Database(dbpath,(err)=>{
     if(err){

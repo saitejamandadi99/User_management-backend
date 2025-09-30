@@ -1,4 +1,4 @@
-const db = require('./db/db')
+const db = require('../db/db')
 const userTable = () =>{
     const sql = `
     create table if not exists user(
