@@ -1,4 +1,5 @@
 const db = require('../db/db')
+const {v4:uuidv4} = require('uuid')
 //get all users
 const getAllUsers = async (req , res )=>{
     try{
@@ -47,3 +48,20 @@ const deleteUserById = (req , res) => {
     }
 }
 
+//create user 
+
+const createUser = (req , res) =>{
+    const {full_name, mobile_no, pan_num, manager_id} = req.body
+    if(!full_name || !mobile_no || !pan_num || !manager_id){
+        return res.status(400).json({message:'please provide all the details'})
+    }
+    const userId = uuidv4(); 
+    const sql = `insert into user (user_id, full_name, mobile_no, pan_num, manager_id) values (?,?,?,?,?)`
+    db.run(sql, [userId, full_name, mobile_no, pan_num,manager_id], (err)=>{
+        if(err){
+            return res.status(500).json({message:err.message})
+        }
+        res.status(201).json({message:'User created successfully'})
+    })
+    
+}
