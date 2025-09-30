@@ -25,7 +25,7 @@ const getAllUsers = async (req , res )=>{
 const deleteUserById = (req , res) => {
     const userId = req.params.id 
     try{
-        const sql = `select * from user where user_ id = ?`
+        const sql = `select * from user where user_id = ?`
         db.get(sql, [userId], (err, row)=>{
             if(err){
                 throw err
@@ -65,3 +65,21 @@ const createUser = (req , res) =>{
     })
     
 }
+//update user by id 
+const updateUserById = (req , res) =>{
+    const userId = req.params.id
+    const {full_name, mobile_no, pan_num, manager_id} = req.body
+    if(!full_name || !mobile_no || !pan_num || !manager_id){
+        return res.status(400).json({message:'please provide all the details'})
+    }
+    const sql = `update user set full_name = ?, mobile_no = ?, pan_num = ? , manager_id= ? where user_id = ?`
+    db.run(sql, [full_name, mobile_no, pan_num,manager_id,userId,], (err)=>{
+        if(err){
+            return res.status(500).json({message:err.message})
+        }
+        res.status(201).json({message:'User Updated successfully'})
+    })
+    
+}
+
+module.exports = {getAllUsers, deleteUserById, createUser, updateUserById}
