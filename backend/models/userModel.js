@@ -8,6 +8,9 @@ const userTable = () =>{
         pan_num text not null, 
         manager_id integer, 
         foreign key (manager_id) references manager(id)) 
+        created_at TEXT DEFAULT (datetime('now')),
+        updated_at TEXT DEFAULT (datetime('now')),
+        is_active INTEGER DEFAULT 1
     `
 
     db.run(sql, (err)=>{
