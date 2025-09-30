@@ -82,4 +82,47 @@ const updateUserById = (req , res) =>{
     
 }
 
-module.exports = {getAllUsers, deleteUserById, createUser, updateUserById}
+const db = require('../db/db');
+
+const getUsers = async (req, res) => {
+  try {
+    const { user_id, mob_num, manager_id } = req.body;
+
+    let sql = 'select * FROM user';
+    const conditions = [];
+    const params = [];
+
+    if (user_id) {
+      conditions.push('user_id = ?');
+      params.push(user_id);
+    }
+    if (mob_num) {
+      conditions.push('mobile_no = ?');
+      params.push(mob_num);
+    }
+    if (manager_id) {
+      conditions.push('manager_id = ?');
+      params.push(manager_id);
+    }
+
+    if (conditions.length > 0) {
+      sql += ' WHERE ' + conditions.join(' AND ');
+    }
+
+    const users = await new Promise((resolve, reject) => {
+      db.all(sql, params, (err, rows) => {
+        if (err) reject(err);
+        else resolve(rows);
+      });
+    });
+
+    res.status(200).json({ message: 'Users fetched successfully', users });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports = { getUsers };
+
+
+module.exports = {getAllUsers,getUsers, deleteUserById, createUser, updateUserById}
