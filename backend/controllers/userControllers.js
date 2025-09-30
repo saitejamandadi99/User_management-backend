@@ -127,4 +127,59 @@ const getUsers = async (req, res) => {
   }
 };
 
-module.exports = {getAllUsers,getUsers, deleteUserById, createUser, updateUserById}
+const runQuery = (sql, params = []) =>
+  new Promise((resolve, reject) => {
+    db.run(sql, params, function (err) {
+      if (err) reject(err);
+      else resolve(this);
+    });
+  });
+
+const getUserById = (userId) =>
+  new Promise((resolve, reject) => {
+    db.get('SELECT * FROM user WHERE user_id = ?', [userId], (err, row) => {
+      if (err) reject(err);
+      else resolve(row);
+    });
+  });
+
+const bulkUpdateUsers = async (req, res) => {
+  const { user_ids, full_name, mobile_no, pan_num, manager_id } = req.body;
+
+  if (!Array.isArray(user_ids) || user_ids.length === 0) {
+    return res.status(400).json({ message: 'user_ids must be a non-empty array' });
+  }
+
+  try {
+    await validateUserDetails({ full_name, mobile_no, pan_num, manager_id });
+    await runQuery('BEGIN TRANSACTION');
+
+    for (const userId of user_ids) {
+      const existingUser = await getUserById(userId);
+      if (!existingUser) {
+        throw new Error(`User with id ${userId} not found`);
+      }
+
+      if (existingUser.manager_id !== manager_id) {
+        // Deactivate old record and add new one
+        await runQuery('UPDATE user SET is_active = 0 WHERE user_id = ?', [userId]);
+        const newUserId = uuidv4();
+        const insertSql = `INSERT INTO user (user_id, full_name, mobile_no, pan_num, manager_id, is_active, created_at, updated_at) 
+                           VALUES (?, ?, ?, ?, ?, 1, datetime('now'), datetime('now'))`;
+        await runQuery(insertSql, [newUserId, full_name, mobile_no, pan_num, manager_id]);
+      } else {
+        // Just update existing record
+        const updateSql = `UPDATE user SET full_name = ?, mobile_no = ?, pan_num = ?, updated_at = datetime('now') WHERE user_id = ?`;
+        await runQuery(updateSql, [full_name, mobile_no, pan_num, userId]);
+      }
+    }
+
+    await runQuery('COMMIT');
+    res.status(200).json({ message: 'Bulk update completed successfully' });
+  } catch (error) {
+    await runQuery('ROLLBACK');
+    res.status(400).json({ message: error.message });
+  }
+};
+
+module.exports = {getAllUsers,getUsers, deleteUserById, createUser, updateUserById,getUserById, bulkUpdateUsers}
