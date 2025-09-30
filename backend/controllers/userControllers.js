@@ -1,5 +1,6 @@
 const db = require('../db/db')
 const {v4:uuidv4} = require('uuid')
+const {validateUserDetails} = require('../utils/validation')
 //get all users
 const getAllUsers = async (req , res )=>{
     try{
@@ -28,7 +29,7 @@ const deleteUserById = (req , res) => {
         const sql = `select * from user where user_id = ?`
         db.get(sql, [userId], (err, row)=>{
             if(err){
-                throw err
+                return res.status(500).json({message:err.message})
             }
             if(!row){
                 return res.status(404).json({message:`user with the id ${userId} not found`})
@@ -50,14 +51,11 @@ const deleteUserById = (req , res) => {
 
 //create user 
 
-const createUser = (req , res) =>{
-    const {full_name, mobile_no, pan_num, manager_id} = req.body
-    if(!full_name || !mobile_no || !pan_num || !manager_id){
-        return res.status(400).json({message:'please provide all the details'})
-    }
+const createUser = async (req , res) =>{
+    const validData = await validateUserDetails(req.body)
     const userId = uuidv4(); 
     const sql = `insert into user (user_id, full_name, mobile_no, pan_num, manager_id) values (?,?,?,?,?)`
-    db.run(sql, [userId, full_name, mobile_no, pan_num,manager_id], (err)=>{
+    db.run(sql, [userId, validData.full_name, validData.mobile_no, validData.pan_num,validData.manager_id], (err)=>{
         if(err){
             return res.status(500).json({message:err.message})
         }
@@ -66,23 +64,18 @@ const createUser = (req , res) =>{
     
 }
 //update user by id 
-const updateUserById = (req , res) =>{
+const updateUserById =async (req , res) =>{
     const userId = req.params.id
-    const {full_name, mobile_no, pan_num, manager_id} = req.body
-    if(!full_name || !mobile_no || !pan_num || !manager_id){
-        return res.status(400).json({message:'please provide all the details'})
-    }
+     const validData = await validateUserDetails(req.body)
     const sql = `update user set full_name = ?, mobile_no = ?, pan_num = ? , manager_id= ? where user_id = ?`
-    db.run(sql, [full_name, mobile_no, pan_num,manager_id,userId,], (err)=>{
+    db.run(sql, [validData.full_name, validData.mobile_no, validData.pan_num,validData.manager_id,userId,], (err)=>{
         if(err){
             return res.status(500).json({message:err.message})
         }
-        res.status(201).json({message:'User Updated successfully'})
+        res.status(200).json({message:'User Updated successfully'})
     })
     
 }
-
-const db = require('../db/db');
 
 const getUsers = async (req, res) => {
   try {
@@ -121,8 +114,5 @@ const getUsers = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
-module.exports = { getUsers };
-
 
 module.exports = {getAllUsers,getUsers, deleteUserById, createUser, updateUserById}
