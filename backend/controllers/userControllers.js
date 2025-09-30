@@ -1,4 +1,4 @@
-const userTable = require('../models/userModel')
+const db = require('../db/db')
 
 const getAllUsers = async (req , res )=>{
     try{
