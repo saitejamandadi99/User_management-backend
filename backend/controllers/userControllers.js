@@ -23,31 +23,43 @@ const getAllUsers = async (req , res )=>{
 
 //delete user by id
 
-const deleteUserById = (req , res) => {
-    const userId = req.params.id 
-    try{
-        const sql = `select * from user where user_id = ?`
-        db.get(sql, [userId], (err, row)=>{
-            if(err){
-                return res.status(500).json({message:err.message})
-            }
-            if(!row){
-                return res.status(404).json({message:`user with the id ${userId} not found`})
-            }
-            const deleteSql = `delete from user where user_id = ?`
-            db.run(deleteSql, [userId], (err)=>{
-                if(err){
-                    throw err
-                }
-                res.status(200).json({message:`user with the id ${userId} deleted successfully`})
-            })
-        
-        })
+const deleteUserById = (req, res) => {
+    const userId = req.params.id;
+    const { mob_num } = req.body;
+    let searchKey;
+    let searchValue;
+
+    if (userId) {
+        searchKey = 'user_id';
+        searchValue = userId;
+    } else if (mob_num) {
+        searchKey = 'mobile_no';
+        searchValue = mob_num;
+    } else {
+        return res.status(400).json({ message: 'Please provide either user_id in URL or mob_num in request body.' });
     }
-    catch(error){
-        res.status(500).json({message:error.message})
-    }
-}
+
+    const selectQuery = `SELECT * FROM user WHERE ${searchKey} = ?`;
+
+    db.get(selectQuery, [searchValue], (error, user) => {
+        if (error) {
+        return res.status(500).json({ message: error.message });
+        }
+        if (!user) {
+        return res.status(404).json({ message: `No user found with ${searchKey} ${searchValue}` });
+        }
+
+        const deleteQuery = `DELETE FROM user WHERE ${searchKey} = ?`;
+
+        db.run(deleteQuery, [searchValue], (deleteError) => {
+        if (deleteError) {
+            return res.status(500).json({ message: deleteError.message });
+        }
+        res.status(200).json({ message: `User identified by ${searchKey} ${searchValue} was deleted successfully.` });
+        });
+    });
+};
+
 
 //create user 
 
