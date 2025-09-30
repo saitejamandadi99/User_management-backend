@@ -33,7 +33,7 @@ const deleteUserById = (req , res) => {
             if(!row){
                 return res.status(404).json({message:`user with the id ${userId} not found`})
             }
-            const deleteSql = `delete from user where id = ?`
+            const deleteSql = `delete from user where user_id = ?`
             db.run(deleteSql, [userId], (err)=>{
                 if(err){
                     throw err
