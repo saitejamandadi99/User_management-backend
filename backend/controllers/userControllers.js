@@ -66,7 +66,7 @@ const deleteUserById = (req, res) => {
 const createUser = async (req , res) =>{
     const validData = await validateUserDetails(req.body)
     const userId = uuidv4(); 
-    const sql = `insert into user (user_id, full_name, mobile_no, pan_num, manager_id) values (?,?,?,?,?)`
+    const sql = `insert into user (user_id, full_name, mobile_no, pan_num, manager_id) values (?,?,?,?,?,datetime('now'), datetime('now'),1)`
     db.run(sql, [userId, validData.full_name, validData.mobile_no, validData.pan_num,validData.manager_id], (err)=>{
         if(err){
             return res.status(500).json({message:err.message})
@@ -79,7 +79,7 @@ const createUser = async (req , res) =>{
 const updateUserById =async (req , res) =>{
     const userId = req.params.id
      const validData = await validateUserDetails(req.body)
-    const sql = `update user set full_name = ?, mobile_no = ?, pan_num = ? , manager_id= ? where user_id = ?`
+    const sql = `update user set full_name = ?, mobile_no = ?, pan_num = ? , manager_id= ?, updated_at = datetime('now) where user_id = ?`
     db.run(sql, [validData.full_name, validData.mobile_no, validData.pan_num,validData.manager_id,userId,], (err)=>{
         if(err){
             return res.status(500).json({message:err.message})
@@ -169,7 +169,7 @@ const bulkUpdateUsers = async (req, res) => {
         await runQuery(insertSql, [newUserId, full_name, mobile_no, pan_num, manager_id]);
       } else {
         // Just update existing record
-        const updateSql = `UPDATE user SET full_name = ?, mobile_no = ?, pan_num = ?, updated_at = datetime('now') WHERE user_id = ?`;
+        const updateSql = `UPDATE user SET full_name = ?, mobile_no = ?, pan_num = ?, updated_at = datetime('now'),  WHERE user_id = ?`;
         await runQuery(updateSql, [full_name, mobile_no, pan_num, userId]);
       }
     }
