@@ -1,5 +1,4 @@
-const express = requrie('express')
-const db = requrie('./db/db')
+const db = require('./db/db')
 
 const managerTable = () =>{
     const sql = `
@@ -11,7 +10,7 @@ const managerTable = () =>{
 
 db.run(sql,(err)=>{
     if (err){
-        console.err('error while creating the manager table',err.message)
+        console.error('error while creating the manager table',err.message)
     }
     console.log('Manager table got created successfully')
 })
