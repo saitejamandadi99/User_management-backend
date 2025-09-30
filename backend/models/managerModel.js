@@ -3,7 +3,7 @@ const db = require('./db/db')
 const managerTable = () =>{
     const sql = `
     create table if not exists manager(
-        id integer primary key, 
+        id text primary key, 
         is_active integer not null
     )`
 
