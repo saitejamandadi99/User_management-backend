@@ -51,10 +51,10 @@ const getUsers = async (req, res) => {
 const createUser = async (req, res) => {
   try {
     // Normalize input keys to fit validation
-    const { full_name, mob_num, pan_num, manager_id } = req.body;
+    const { full_name, mobile_no, pan_num, manager_id } = req.body;
     const validData = await validateUserDetails({
       full_name,
-      mobile_no: mob_num,
+      mobile_no,
       pan_num,
       manager_id,
     });
@@ -118,10 +118,10 @@ const updateUser = async (req, res) => {
 
   try {
     // Normalize for validation
-    const { full_name, mob_num, pan_num, manager_id } = update_data;
+    const { full_name, mobile_no, pan_num, manager_id } = update_data;
     const validData = await validateUserDetails({
       full_name,
-      mobile_no: mob_num,
+      mobile_no,
       pan_num,
       manager_id,
     });

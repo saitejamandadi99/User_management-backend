@@ -18,7 +18,7 @@ async function validateUserDetails({ full_name, mobile_no, pan_num, manager_id }
     throw new Error('Invalid mobile number format.');
   }
   const managerExists = await new Promise((resolve, reject) => {
-    const sql = 'SELECT * FROM managers WHERE id = ? AND is_active = 1';
+    const sql = 'SELECT * FROM manager WHERE id = ? AND is_active = 1';
     db.get(sql, [manager_id], (err, row) => {
       if (err) return reject(err);
       resolve(!!row);
