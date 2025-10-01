@@ -10,6 +10,7 @@ app.get('/', (req , res)=>{
     res.status(200).send('Successfully running in the backend')
 })
 
+app.use('/userdata', require('./routes/userRoutes'))
 
 app.use((err,req , res, next)=>{
     res.status(500).json({message:err.message}) //error handling middleware global
